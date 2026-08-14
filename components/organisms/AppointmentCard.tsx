@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Badge } from "@/components/atoms/Badge";
 import { DeleteCitaButton } from "@/components/molecules/DeleteCitaButton";
@@ -6,6 +8,12 @@ import type { CitaView } from "@/types/cita";
 
 interface AppointmentCardProps {
   cita: CitaView;
+  /**
+   * Forwarded to the DeleteCitaButton so the explorer can remove the
+   * card optimistically. Marked optional so the card still works in
+   * contexts that don't care (e.g. SSR-only previews in the future).
+   */
+  onDeleted?: (citaId: string) => void;
 }
 
 function isPast(cita: CitaView): boolean {
@@ -16,7 +24,7 @@ function isPast(cita: CitaView): boolean {
   return citaDate.getTime() < Date.now();
 }
 
-export function AppointmentCard({ cita }: AppointmentCardProps) {
+export function AppointmentCard({ cita, onDeleted }: AppointmentCardProps) {
   const past = isPast(cita);
   return (
     <article
@@ -81,7 +89,11 @@ export function AppointmentCard({ cita }: AppointmentCardProps) {
         >
           Editar →
         </Link>
-        <DeleteCitaButton citaId={cita.id} citaName={cita.nombre} />
+        <DeleteCitaButton
+          citaId={cita.id}
+          citaName={cita.nombre}
+          onDeleted={onDeleted}
+        />
       </footer>
     </article>
   );

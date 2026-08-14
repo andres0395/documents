@@ -2,7 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { citaService } from "@/services/citas";
+import { citaService, CITA_NOT_FOUND_ERROR } from "@/services/citas";
 import { citaFormSchema, citaFileSchema, listCitasQuerySchema } from "@/lib/validation/citas";
 import { fromDateInputValue } from "@/lib/date";
 import { CITAS_REVALIDATE_TAG } from "@/lib/constants";
@@ -211,16 +211,38 @@ export async function updateCitaAction(
   redirect("/citas");
 }
 
-export async function deleteCitaAction(formData: FormData): Promise<void> {
+/**
+ * Result returned by `deleteCitaAction` so the Client Component can react
+ * (optimistic update, error display). We DON'T throw on "not found" — a
+ * double click on the same cita, or a deletion from another tab, should
+ * be treated as success (idempotent delete), not as a crash.
+ */
+export interface DeleteCitaActionState {
+  ok: boolean;
+  error?: string;
+}
+
+export async function deleteCitaAction(
+  formData: FormData,
+): Promise<DeleteCitaActionState> {
   const session = await requireSession();
   const id = fieldValue(formData, "id");
-  if (!id) return;
-  const result = await citaService.delete(id, session.userId);
-  if (!result.ok) {
-    throw new Error(result.error);
+  if (!id) {
+    return { ok: false, error: "Falta el identificador de la cita" };
   }
-  revalidatePath("/citas");
-  revalidateTag(CITAS_REVALIDATE_TAG, "max");
+
+  const result = await citaService.delete(id, session.userId);
+
+  // Idempotent: if the cita is already gone (double click, another tab,
+  // stale UI), the desired end state is the same — cita absent — so we
+  // report success and still revalidate so the server data stays in sync.
+  if (result.ok || result.error === CITA_NOT_FOUND_ERROR) {
+    revalidatePath("/citas");
+    revalidateTag(CITAS_REVALIDATE_TAG, "max");
+    return { ok: true };
+  }
+
+  return { ok: false, error: result.error };
 }
 
 /**

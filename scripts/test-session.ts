@@ -12,7 +12,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../lib/generated/prisma/client";
 
 async function main() {
-  const email = (process.argv[2] ?? "admin@citas.local").toLowerCase();
+  const email = (process.argv[2] ?? "anmuce03@gmail.com").toLowerCase();
 
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error("DATABASE_URL not set");

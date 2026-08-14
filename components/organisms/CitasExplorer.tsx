@@ -50,6 +50,21 @@ export function CitasExplorer({
   const showNoDataEmpty = !showResults && !hasActiveFilters;
   const showNoMatch = !showResults && hasActiveFilters;
 
+  /**
+   * Optimistic delete: remove the card from local state immediately
+   * after the server confirms the deletion. The action also revalidates
+   * `/citas`, so the next full-page load will be consistent.
+   *
+   * Without this, `revalidatePath` only refreshes the Server Component
+   * cache — the explorer's `citas` state (Client-side) stays stale and
+   * the user sees the deleted card until they reload.
+   */
+  const handleDeleted = (deletedId: string) => {
+    setCitas((prev) => prev.filter((c) => c.id !== deletedId));
+    setTotal((prev) => Math.max(0, prev - 1));
+    setOffset((prev) => Math.max(0, prev - 1));
+  };
+
   const applyFilters = (next: CitaListFilters) => {
     setFilters(next);
     const id = ++requestIdRef.current;
@@ -117,7 +132,7 @@ export function CitasExplorer({
             }
             aria-busy={isPending}
           >
-            <AppointmentList citas={citas} />
+            <AppointmentList citas={citas} onDeleted={handleDeleted} />
           </div>
           <LoadMoreButton
             hasMore={hasMore}

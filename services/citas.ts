@@ -29,6 +29,7 @@ function buildDriveFolderName(nombre: string): string {
 }
 
 const NOT_FOUND_ERROR = "La cita no existe o no te pertenece";
+export const CITA_NOT_FOUND_ERROR = NOT_FOUND_ERROR;
 
 export const citaService = {
   async list(userId: string): Promise<Cita[]> {
