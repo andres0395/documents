@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Cita {
+  id            String   @id @default(cuid())
+  nombre        String
+  fecha         DateTime
+  hora          String
+  lugar         String
+  archivoUrl    String?
+  archivoId     String?
+  archivoNombre String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([fecha])
+  @@index([createdAt])
+  @@map("citas")
+}
