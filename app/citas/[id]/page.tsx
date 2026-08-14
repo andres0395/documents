@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { AppointmentForm } from "@/components/organisms/AppointmentForm";
 import { citaService } from "@/services/citas";
+import { requireSession } from "@/lib/auth/require-session";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +11,9 @@ export default async function EditCitaPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await requireSession();
   const { id } = await params;
-  const cita = await citaService.findById(id);
+  const cita = await citaService.findById(id, session.userId);
   if (!cita) {
     notFound();
   }
@@ -20,6 +22,7 @@ export default async function EditCitaPage({
     <PageLayout
       title="Editar cita"
       description={cita.nombre}
+      userLabel={session.email}
     >
       <div className="mx-auto max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900/60 p-6 sm:p-8">
         <AppointmentForm

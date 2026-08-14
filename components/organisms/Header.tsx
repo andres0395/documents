@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
+import { LogoutButton } from "@/components/molecules/LogoutButton";
 
-export function Header() {
+interface HeaderProps {
+  /** Display label for the signed-in user. Falls back to email. */
+  userLabel: string;
+}
+
+export function Header({ userLabel }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-800 bg-zinc-950/85 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/65">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href="/citas"
           className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-100"
@@ -32,14 +38,16 @@ export function Header() {
           </span>
           {APP_NAME}
         </Link>
-        <nav aria-label="Principal">
-          <Link
-            href="/citas"
-            className="text-sm font-medium text-zinc-300 transition-colors hover:text-zinc-100"
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span
+            className="hidden truncate text-xs text-zinc-400 sm:inline"
+            title={userLabel}
           >
-            Mis citas
-          </Link>
-        </nav>
+            {userLabel}
+          </span>
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );

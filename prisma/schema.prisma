@@ -10,8 +10,24 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  citas Cita[]
+
+  @@index([email])
+  @@map("users")
+}
+
 model Cita {
   id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   nombre        String
   fecha         DateTime
   hora          String
@@ -22,6 +38,7 @@ model Cita {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([userId])
   @@index([fecha])
   @@index([createdAt])
   @@map("citas")

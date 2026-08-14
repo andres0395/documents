@@ -7,6 +7,7 @@ import { citaFormSchema, citaFileSchema, listCitasQuerySchema } from "@/lib/vali
 import { fromDateInputValue } from "@/lib/date";
 import { CITAS_REVALIDATE_TAG } from "@/lib/constants";
 import { toCitaDTO, type CitaDTO, type CitaListInput, type CitaListResult } from "@/types/cita";
+import { requireSession } from "@/lib/auth/require-session";
 
 export interface CitaActionState {
   ok: boolean;
@@ -65,6 +66,7 @@ export async function createCitaAction(
   _prev: CitaActionState,
   formData: FormData,
 ): Promise<CitaActionState> {
+  const session = await requireSession();
   const values = readSubmittedValues(formData);
 
   const parsedFields = citaFormSchema.safeParse(values);
@@ -113,7 +115,7 @@ export async function createCitaAction(
     };
   }
 
-  const result = await citaService.create({
+  const result = await citaService.create(session.userId, {
     nombre: parsedFields.data.nombre,
     fecha,
     hora: parsedFields.data.hora,
@@ -135,6 +137,7 @@ export async function updateCitaAction(
   _prev: CitaActionState,
   formData: FormData,
 ): Promise<CitaActionState> {
+  const session = await requireSession();
   const id = fieldValue(formData, "id");
   if (!id) {
     return { ok: false, message: "Falta el identificador de la cita", values: EMPTY_VALUES };
@@ -188,7 +191,7 @@ export async function updateCitaAction(
     };
   }
 
-  const result = await citaService.update({
+  const result = await citaService.update(session.userId, {
     id,
     nombre: parsedFields.data.nombre,
     fecha,
@@ -209,13 +212,11 @@ export async function updateCitaAction(
 }
 
 export async function deleteCitaAction(formData: FormData): Promise<void> {
+  const session = await requireSession();
   const id = fieldValue(formData, "id");
   if (!id) return;
-  const result = await citaService.delete(id);
+  const result = await citaService.delete(id, session.userId);
   if (!result.ok) {
-    // We don't surface a per-field error here because the delete form has
-    // a confirmation dialog; failures are extreme. Throw so the global
-    // error boundary handles it.
     throw new Error(result.error);
   }
   revalidatePath("/citas");
@@ -233,16 +234,19 @@ export async function deleteCitaAction(formData: FormData): Promise<void> {
 export async function listCitasAction(
   input: CitaListInput,
 ): Promise<CitaListResult> {
+  const session = await requireSession();
   const parsed = listCitasQuerySchema.safeParse(input);
   if (!parsed.success) {
-    // Treat invalid input as a query for "nothing" rather than throwing —
-    // list actions should never crash the UI on a bad payload.
     return { data: [], total: 0 };
   }
 
   const { filters = {}, offset, limit } = parsed.data;
-
-  const page = await citaService.listPaginated(filters, offset, limit);
+  const page = await citaService.listPaginated(
+    session.userId,
+    filters,
+    offset,
+    limit,
+  );
   const data: CitaDTO[] = page.data.map(toCitaDTO);
   return { data, total: page.total };
 }

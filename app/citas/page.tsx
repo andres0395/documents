@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { CitasExplorer } from "@/components/organisms/CitasExplorer";
 import { citaService } from "@/services/citas";
+import { requireSession } from "@/lib/auth/require-session";
 import { toCitaDTO } from "@/types/cita";
 import { Button } from "@/components/atoms/Button";
 
@@ -10,8 +11,15 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 6;
 
 export default async function CitasPage() {
-  const initial = await citaService.listPaginated({}, 0, PAGE_SIZE);
+  const session = await requireSession("/citas");
+  const initial = await citaService.listPaginated(
+    session.userId,
+    {},
+    0,
+    PAGE_SIZE,
+  );
   const total = initial.total;
+  const userLabel = session.email;
 
   return (
     <PageLayout
@@ -21,6 +29,7 @@ export default async function CitasPage() {
           ? "Aún no registraste ninguna cita."
           : `Tenés ${total} cita${total === 1 ? "" : "s"} registrada${total === 1 ? "" : "s"}.`
       }
+      userLabel={userLabel}
       actions={
         <Link href="/citas/nueva">
           <Button variant="primary">+ Nueva cita</Button>

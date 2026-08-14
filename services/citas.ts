@@ -1,6 +1,6 @@
 import { citaRepository } from "@/repositories/citas";
 import { googleDrive } from "@/services/google-drive";
-import type { Cita, CreateCitaInput, UpdateCitaInput, CitaListFilters } from "@/types/cita";
+import type { Cita, CreateCitaInput, CitaListFilters } from "@/types/cita";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
@@ -28,24 +28,30 @@ function buildDriveFolderName(nombre: string): string {
   return safeFileBaseName(nombre);
 }
 
+const NOT_FOUND_ERROR = "La cita no existe o no te pertenece";
+
 export const citaService = {
-  async list(): Promise<Cita[]> {
-    return citaRepository.list();
+  async list(userId: string): Promise<Cita[]> {
+    return citaRepository.list(userId);
   },
 
   async listPaginated(
+    userId: string,
     filters: CitaListFilters,
     offset: number,
     limit: number,
   ): Promise<{ data: Cita[]; total: number }> {
-    return citaRepository.findManyPaginated(filters, offset, limit);
+    return citaRepository.findManyPaginated(userId, filters, offset, limit);
   },
 
-  async findById(id: string): Promise<Cita | null> {
-    return citaRepository.findById(id);
+  async findById(id: string, userId: string): Promise<Cita | null> {
+    return citaRepository.findById(id, userId);
   },
 
-  async create(payload: CitaFormPayload): Promise<ServiceResult<Cita>> {
+  async create(
+    userId: string,
+    payload: CitaFormPayload,
+  ): Promise<ServiceResult<Cita>> {
     if (!payload.nombre.trim()) {
       return { ok: false, error: "El nombre de la cita es obligatorio" };
     }
@@ -89,14 +95,17 @@ export const citaService = {
       archivoNombre,
     };
 
-    const cita = await citaRepository.create(input);
+    const cita = await citaRepository.create({ ...input, userId });
     return { ok: true, data: cita };
   },
 
-  async update(payload: CitaFormPayload & { id: string }): Promise<ServiceResult<Cita>> {
-    const existing = await citaRepository.findById(payload.id);
+  async update(
+    userId: string,
+    payload: CitaFormPayload & { id: string },
+  ): Promise<ServiceResult<Cita>> {
+    const existing = await citaRepository.findById(payload.id, userId);
     if (!existing) {
-      return { ok: false, error: "La cita no existe" };
+      return { ok: false, error: NOT_FOUND_ERROR };
     }
 
     if (!payload.nombre.trim()) {
@@ -132,8 +141,7 @@ export const citaService = {
       }
     }
 
-    const input: UpdateCitaInput = {
-      id: payload.id,
+    const cita = await citaRepository.update(payload.id, userId, {
       nombre: payload.nombre.trim(),
       fecha: payload.fecha,
       hora: payload.hora,
@@ -141,18 +149,16 @@ export const citaService = {
       archivoUrl,
       archivoId,
       archivoNombre,
-    };
-
-    const cita = await citaRepository.update(input);
+    });
     return { ok: true, data: cita };
   },
 
-  async delete(id: string): Promise<ServiceResult<true>> {
-    const existing = await citaRepository.findById(id);
+  async delete(id: string, userId: string): Promise<ServiceResult<true>> {
+    const existing = await citaRepository.findById(id, userId);
     if (!existing) {
-      return { ok: false, error: "La cita no existe" };
+      return { ok: false, error: NOT_FOUND_ERROR };
     }
-    await citaRepository.delete(id);
+    await citaRepository.delete(id, userId);
     return { ok: true, data: true };
   },
 };
