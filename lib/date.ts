@@ -8,12 +8,14 @@ const LONG_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
   year: "numeric",
   month: "long",
   day: "numeric",
+  timeZone: "UTC",
 });
 
-const SHORT_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
+export const SHORT_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
+  timeZone: "UTC",
 });
 
 export function formatCitaFecha(fecha: Date | string): string {
@@ -31,9 +33,9 @@ export function formatCitaFechaCorta(fecha: Date | string): string {
  */
 export function toDateInputValue(fecha: Date | string): string {
   const date = typeof fecha === "string" ? new Date(fecha) : fecha;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 

@@ -3,6 +3,7 @@
 import { useId, useRef, useState } from "react";
 import { Label } from "@/components/atoms/Label";
 import { cn } from "@/lib/cn";
+import Link from "next/link";
 
 interface FileUploadProps {
   name: string;
@@ -100,14 +101,14 @@ export function FileUpload({
       {fileName && defaultFileUrl ? (
         <p className="text-xs text-zinc-400">
           Archivo actual:{" "}
-          <a
+          <Link
             href={defaultFileUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-300 underline underline-offset-2 hover:text-indigo-200"
           >
             {fileName}
-          </a>{" "}
+          </Link>{" "}
           <span className="text-zinc-500">(sube uno nuevo para reemplazarlo)</span>
         </p>
       ) : null}

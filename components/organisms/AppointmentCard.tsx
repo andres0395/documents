@@ -67,14 +67,15 @@ export function AppointmentCard({ cita, onDeleted }: AppointmentCardProps) {
           <dt className="text-xs uppercase tracking-wide text-zinc-500">Archivo</dt>
           <dd className="text-sm text-zinc-200">
             {cita.archivoUrl ? (
-              <a
+              <Link
                 href={cita.archivoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-indigo-300 underline underline-offset-2 hover:text-indigo-200"
+                className="text-indigo-300 underline underline-offset-2 hover:text-indigo-200 block truncate"
+                title={cita.archivoNombre ?? "Ver archivo"}
               >
                 {cita.archivoNombre ?? "Ver archivo"}
-              </a>
+              </Link>
             ) : (
               <span className="text-zinc-500">Sin archivo adjunto</span>
             )}
