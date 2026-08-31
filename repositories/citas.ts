@@ -16,6 +16,16 @@ export interface ICitaRepository {
     skip: number,
     take: number,
   ): Promise<{ data: Cita[]; total: number }>;
+  /**
+   * One-shot lookup for the daily-reminder cron: every cita whose
+   * `fecha` falls in `[start, end)`. Pass `userId = null` to include
+   * all users.
+   */
+  findByDateRange(
+    userId: string | null,
+    start: Date,
+    end: Date,
+  ): Promise<Cita[]>;
 }
 
 /**
@@ -124,6 +134,23 @@ class CitaRepository implements ICitaRepository {
       prisma.cita.count({ where }),
     ]);
     return { data, total };
+  }
+
+  async findByDateRange(
+    userId: string | null,
+    start: Date,
+    end: Date,
+  ): Promise<Cita[]> {
+    const where: Prisma.CitaWhereInput = {
+      fecha: { gte: start, lt: end },
+    };
+    if (userId) {
+      where.userId = userId;
+    }
+    return prisma.cita.findMany({
+      where,
+      orderBy: [{ fecha: "asc" }, { hora: "asc" }],
+    });
   }
 }
 

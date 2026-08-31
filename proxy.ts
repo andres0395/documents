@@ -68,6 +68,10 @@ export function proxy(request: NextRequest) {
 
 /**
  * Run on every path except:
+ *   - /api/* (route handlers — they handle their own auth, e.g. the
+ *     /api/cron/daily-reminders route uses a Bearer token, not a
+ *     session cookie; if the proxy ran there, it would 307-redirect
+ *     the cron to /login)
  *   - _next/static, _next/image (Next internals)
  *   - favicon.ico
  *   - common static assets (images, fonts)
@@ -78,6 +82,6 @@ export function proxy(request: NextRequest) {
  */
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|otf)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|otf)$).*)",
   ],
 };
