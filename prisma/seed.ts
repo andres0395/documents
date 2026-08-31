@@ -28,12 +28,12 @@ interface SeedUser {
 
 const SEED_USERS: SeedUser[] = [
   {
-    email: "anmuce03@gmail.com",
+    email: "example@gmail.com",
     name: "Administrador",
     password: "admin1234",
   },
   {
-    email: "yessicalondre9501@gmail.com",
+    email: "example@gmail.com",
     name: "Yessica Londre",
     password: "yessica1234",
   },
