@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  redirect("/citas");
+  // The proxy already redirects unauthenticated users to /login. An
+  // authenticated user lands on /dashboard, which then routes to the
+  // right home based on role.
+  redirect("/dashboard");
 }

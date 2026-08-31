@@ -10,17 +10,24 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  ADMIN
+  EDITOR
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   name         String?
   passwordHash String
+  role         Role     @default(EDITOR)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   citas Cita[]
 
   @@index([email])
+  @@index([role])
   @@map("users")
 }
 

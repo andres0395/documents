@@ -30,6 +30,7 @@ export default async function CitasPage() {
           : `Tenés ${total} cita${total === 1 ? "" : "s"} registrada${total === 1 ? "" : "s"}.`
       }
       userLabel={userLabel}
+      userRole={session.role}
       actions={
         <Link href="/citas/nueva">
           <Button variant="primary">+ Nueva cita</Button>

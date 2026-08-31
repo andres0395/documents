@@ -10,10 +10,11 @@ interface LoginPageProps {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  // Already signed in? Skip the form.
+  // Already signed in? Skip the form. The /dashboard page routes
+  // to the right home based on role, so we don't branch here.
   const session = await getCurrentSession();
   if (session) {
-    redirect("/citas");
+    redirect("/dashboard");
   }
 
   const { next } = await searchParams;

@@ -1,5 +1,6 @@
 import { DUMMY_HASH, verifyPassword } from "@/lib/auth/password";
 import { userRepository } from "@/repositories/users";
+import type { RoleName } from "@/types/user";
 
 export type ServiceResult<T> =
   | { ok: true; data: T }
@@ -8,6 +9,7 @@ export type ServiceResult<T> =
 export interface AuthenticatedUser {
   id: string;
   email: string;
+  role: RoleName;
 }
 
 /**
@@ -36,6 +38,13 @@ export const authService = {
       return { ok: false, error: "Credenciales inválidas" };
     }
 
-    return { ok: true, data: { id: user.id, email: user.email } };
+    return {
+      ok: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        role: user.role === "ADMIN" ? "admin" : "editor",
+      },
+    };
   },
 };

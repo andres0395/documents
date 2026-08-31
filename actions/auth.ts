@@ -85,6 +85,7 @@ export async function loginAction(
   const token = await createSessionToken({
     userId: result.data.id,
     email: result.data.email,
+    role: result.data.role,
   });
 
   const cookieStore = await cookies();
@@ -98,9 +99,11 @@ export async function loginAction(
     maxAge: SESSION_DURATION_SECONDS,
   });
 
-  // next is optional; fall back to /citas. Only honor a relative path
-  // (validated by nextSchema) to avoid open-redirect.
-  const next = parsedNext.success && parsedNext.data ? parsedNext.data : "/citas";
+  // next is optional; fall back to /dashboard (which then routes by
+  // role). Only honor a relative path (validated by nextSchema) to
+  // avoid open-redirect.
+  const next =
+    parsedNext.success && parsedNext.data ? parsedNext.data : "/dashboard";
   redirect(next);
 }
 

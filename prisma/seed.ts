@@ -5,6 +5,10 @@
  * accounts are provisioned through this seed (or a future admin tool).
  *
  * Run with `pnpm prisma db seed` or implicitly via `pnpm prisma migrate dev`.
+ *
+ * Important: these are DEV-ONLY credentials. Before any production deploy,
+ * remove or replace this seed and provision real users through a one-off
+ * admin script.
  */
 
 import "dotenv/config";
@@ -20,22 +24,27 @@ if (!databaseUrl) {
 const adapter = new PrismaPg({ connectionString: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
+type Role = "ADMIN" | "EDITOR";
+
 interface SeedUser {
   email: string;
   name: string;
   password: string;
+  role: Role;
 }
 
 const SEED_USERS: SeedUser[] = [
   {
-    email: "example@gmail.com",
+    email: "admin@example.com",
     name: "Administrador",
     password: "admin1234",
+    role: "ADMIN",
   },
   {
-    email: "example@gmail.com",
-    name: "Yessica Londre",
-    password: "yessica1234",
+    email: "editor@example.com",
+    name: "Editor de prueba",
+    password: "editor1234",
+    role: "EDITOR",
   },
 ];
 
@@ -49,14 +58,16 @@ async function main() {
       update: {
         name: seed.name,
         passwordHash,
+        role: seed.role,
       },
       create: {
         email: seed.email,
         name: seed.name,
         passwordHash,
+        role: seed.role,
       },
     });
-    console.log(`✓ Seeded user: ${user.email} (${user.id})`);
+    console.log(`✓ Seeded user: ${user.email} (${user.id}, role=${user.role})`);
   }
 }
 
