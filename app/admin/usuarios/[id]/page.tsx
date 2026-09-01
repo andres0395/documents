@@ -35,6 +35,7 @@ export default async function EditUserPage({
             name: user.name,
             role: prismaRoleToName(user.role),
           }}
+          sessionId={session.userId}
         />
       </div>
     </PageLayout>

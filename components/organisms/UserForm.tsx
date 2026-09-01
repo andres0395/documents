@@ -21,13 +21,14 @@ interface UserFormProps {
     name: string | null;
     role: RoleName;
   };
+  sessionId: string;
 }
 
 const INITIAL_STATE: UserFormState = { ok: false, message: "" };
 
 const ROLE_OPTIONS = ROLES.map((r) => ({ value: r.value, label: r.label }));
 
-export function UserForm({ mode, userId, defaults }: UserFormProps) {
+export function UserForm({ mode, userId, defaults, sessionId }: UserFormProps) {
   const action = mode === "create" ? createUserAction : updateUserAction;
   const [state, formAction] = useActionState(action, INITIAL_STATE);
 
@@ -39,7 +40,7 @@ export function UserForm({ mode, userId, defaults }: UserFormProps) {
   const submitLabel = mode === "create" ? "Crear usuario" : "Guardar cambios";
   const formKey = state === INITIAL_STATE ? "initial" : `state-${userId ?? "new"}`;
 
-  const isEditingSelf = mode === "edit" && userId ? true : false; // server also enforces
+  const isEditingSelf = mode === "edit" && userId === sessionId ? true : false; // server also enforces
 
   return (
     <form

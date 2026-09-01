@@ -49,7 +49,7 @@ export function UserList({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900/40">
+    <div className="overflow-auto rounded-lg border border-zinc-800 bg-zinc-900/40">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-zinc-800 bg-zinc-900/60 text-xs uppercase tracking-wide text-zinc-500">
           <tr>
